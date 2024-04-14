@@ -8,6 +8,12 @@ Main steps to follow to make this snake game;
 
 
 
+
+
+
+
+
+
 2. Creating the food
 
 -- I created a grid - basically dividing the screen into identical cell, this is going to use for the positioning 
@@ -54,15 +60,35 @@ Food class:
     ---> deque [Double eneded queue] - to represent the snake body
         deque is the data structure that allows you to add and remove elements from both ends !
 
+    -> I made a deque that takes Vector2 coordinates, this basically will be used to represent the snake 
+    -> I used DrawRectangleRounded function to make the snake edges rounded which looks better than sharp edges.
+         void DrawRectangleRounded(Rectangle rec, float roundness, int segments, Color color); 
+        - 4 paramater : for first parameter we use Rectangle struct which takes x, y, width and height\
+        - second paramater is self explainatory 
 
-
-
-
-
+    Step 3: Creating the snake ----> DONE
 
 
 
 4. Moving the sanke 
+
+    The main idea is to add a cell infrnt of the snake bodu and remove a cell from the tail.
+    this will move the snake.
+    
+    to move right : remove the tail cell and add to the head cell
+    to move up : remove the tail and add to the top edge of the head cell
+    to move down : remove the tail and add to the bottom edge of the head cell
+
+    ## Removing the last cell and adding a new one to the direction of the movement ##
+    this will be the logic to move the snake in the screen
+
+
+After step 4,
+    Game class will be the container that will hold the snake and food oject.
+    by doing so the code will look much cleaner. 
+    - code will be easier to maintain, understand and expand
+    - easy to find the bugs 
+
 5. Making the snake eat the food
 6. Making the snake grow longer as it eats the food
 7. Check for collision with the edge of the map and its tail
