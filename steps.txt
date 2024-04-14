@@ -1,0 +1,71 @@
+
+
+Main steps to follow to make this snake game;
+
+
+
+1. creating a blank canvas and game loop . ---> DONE
+
+
+
+2. Creating the food
+
+-- I created a grid - basically dividing the screen into identical cell, this is going to use for the positioning 
+and movement of the object in the screen.
+
+Food class:
+    -position of the food. ==> using Vector2 struct (raylib) - makes our life easier
+
+    - created a method to draw the food in the screen
+        Draw method => inside this method we call DrawRectangle(position.x*cellSize, position.y*cellSize, cellSize, cellSize, darkGreen); 
+        -- takes 5 arguements becasue raylib offers a function to populate a rectangle in the screen.
+            in my case i can use this rectangle as food for the snake.
+
+    TAKING THIS TO THE NEXT LEVEL
+    - I want to use image as the food 
+
+    ---> Constructor is basically a special method in the class, it is automatically called when an instance 
+    of the class is created. In my case when the food instance is created, the image file should be loaded,
+    and then use raylib function to populate it in the screen. 
+
+    ## When the food object is created, we need a constructor to load the image file
+
+    - load the image from the folder 
+    - convert that image into texture to render in the screen with raylib
+    - after texture is loaded we unload the image to free the memory  
+
+    ==> Used Draw texture method to render the image in the screen 
+    ++> added a funtion to generate random x and y point so that the food will be at random position every 
+        time the game is launched.
+
+    STEP 2 CREATING THE FOOD ----> DONE
+
+
+3. Creating the snake (basically a collection of cell as we consume food cell)
+
+    -----> Using Array to creat the body of the snake 
+    - body of the snake is the array of the cells
+        - I am not going to store the cell in the array.
+        - Storing the position of the cell is much easier and does the job!
+        - Use Vector2 struct to store the x and y coordinate
+
+    using array is very possible but there is a better way of creating the body of the snake.
+
+    ---> deque [Double eneded queue] - to represent the snake body
+        deque is the data structure that allows you to add and remove elements from both ends !
+
+
+
+
+
+
+
+
+
+4. Moving the sanke 
+5. Making the snake eat the food
+6. Making the snake grow longer as it eats the food
+7. Check for collision with the edge of the map and its tail
+8. Adding the title and frame. To make it look pretty
+9. Kepping score 
+10. (MAybe ) Adding sounds
