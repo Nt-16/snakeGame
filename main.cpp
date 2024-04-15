@@ -15,6 +15,8 @@ Color green = {173, 204, 96, 255};
 int cellSize = 30; 
 int cellCount = 25; //rows and column
 
+int offsetvalue = 70; // width of the border
+
 double lastUpdateTime = 0; // counter to keep track of time at which last update of snake movement occured
 
 
@@ -35,17 +37,19 @@ bool eventHappened (double interval)
 }
 
 
-// checks if generated position is on top of existing snake
+// checks if generated position is on top of existing snake or
+// checks weather a vector2 coordinate is in the deque or not
 bool ElementsInDeque(Vector2 element, deque<Vector2> deque)// checks if the randomly generated position is same to the previous one
 {   
     for (unsigned i = 0; i < deque.size(); i++)
     {
-        if (Vector2Equals(deque[i], element))
+        if (Vector2Equals(deque[i], element)) // raylib fucntion to compare Vector2 
         {
             return true;
         }
-        return false;
+        
     }
+    return false;
 }
 
 class Snake 
@@ -54,6 +58,8 @@ class Snake
     deque <Vector2> SnakeBody = {Vector2{6,9}, Vector2{5,9}, Vector2{4,9}}; // initatio body of the sanke
     // P.S: origin for the grid is located in the top left cornor 
     Vector2 direction = {1,0}; // move to right
+
+    bool growCell = false; // if true we add a sgment in the snake
 
 
     void Draw()
@@ -64,15 +70,39 @@ class Snake
             float y = SnakeBody[i].y; // accessing y coordinate from Vector2 struct in body
 
             // recrangle struct to draw rounded edge rectangle
-            Rectangle segment = Rectangle{x * cellSize, y * cellSize, (float)cellSize, (float)cellSize};
+            Rectangle segment = Rectangle{offsetvalue + x * cellSize, offsetvalue + y * cellSize, (float)cellSize, (float)cellSize};
             DrawRectangleRounded(segment, 0.8, 6, darkGreen );
         }
     }
 
     void Move()
     {
-        SnakeBody.pop_back(); // removing last cell
-        SnakeBody.push_front(Vector2Add(SnakeBody[0], direction));
+        //we take this put from the if statement becasue it was both inside if and else so we could take it out 
+        // no duplication
+        SnakeBody.push_front(Vector2Add(SnakeBody[0], direction)); 
+        
+        // if this is if statement is true we dont pop last element in deque thats why snake grows 
+        //when it collides with the food 
+        if (growCell == true)
+        {   
+            // to add a segment, a newelement have to be pushed in front of the deque
+            
+
+            // after adding set the grow cell to false
+            growCell = false;
+        }else
+        {
+            SnakeBody.pop_back(); // removing last cell
+            
+        }
+ 
+    }
+    
+    void Reset() // resetting the snake position if the game ends
+    {
+        // initial snake position 
+        SnakeBody = {Vector2{6,9}, Vector2{5,9}, Vector2{4,9}};
+        direction = {1,0}; 
     }
 
 };
@@ -117,7 +147,7 @@ class Food{
     Vector2 GenerateRandomPosition(deque<Vector2>snakeBody) 
     {
         
-        Vector2 position = GenerateRandomCell();
+        Vector2 position = GenerateRandomCell(); // generating random points for food
         while(ElementsInDeque(position, snakeBody)) // checks if generated position is on top of existing snake
         {
             position = GenerateRandomCell();
@@ -131,7 +161,7 @@ class Food{
     {  
         // takes 5 arguement ( x,y, width, height, color)
         // DrawRectangle(position.x*cellSize, position.y*cellSize, cellSize, cellSize, darkGreen); 
-        DrawTexture(texture, position.x * cellSize, position.y * cellSize, WHITE); // white is default value which means no color tint/filter is applied
+        DrawTexture(texture, offsetvalue + position.x * cellSize, offsetvalue + position.y * cellSize, WHITE); // white is default value which means no color tint/filter is applied
 
 
     }
@@ -145,6 +175,10 @@ class Game // will hold the snake and food class
     Snake snake = Snake();
     Food food = Food(snake.SnakeBody);
 
+    // we use this boolean to end the game if the snake collides with the edges or its body instead.
+    bool gameRunning = true; // if the game is running its true and if the game ends it is false.
+
+
     // methods 
 
     void Draw()
@@ -155,8 +189,13 @@ class Game // will hold the snake and food class
 
     void Update()
     {
-        snake.Move(); // this function updates/ moves the snake as the user pressed keys
-        checkColliosionWithFood();
+        if (gameRunning == true) // gameRunning has to be true for the game to run
+        {
+            snake.Move(); // this function updates/ moves the snake as the user pressed keys
+            checkColliosionWithFood(); //  snake when it eats the food
+            collisionWithEdges(); // snake when it goes out of the map
+            collisioWithBody();
+        }
     }
 
     void checkColliosionWithFood()
@@ -170,15 +209,64 @@ class Game // will hold the snake and food class
             //so we dont need to create another food
 
             // add a cell to the body of the snake
-            
+            snake.growCell = true; // if there is colliosion with food we add a new segment so the snake grows
+
         }
+    }
+
+    // method check for the collion w the edges 
+    void collisionWithEdges()
+    {
+        // if the head of the snake is equal to the edge coordinate of the map
+        // cell count = 25 (not inculusive so 0 - 24)
+        // if the x ccoordinat of snake head is 25 or -1, it means that the head hit the either edge of the 
+        //screen so we end the game
+        if(snake.SnakeBody[0].x == cellCount || snake.SnakeBody[0].x == -1) 
+        {
+            GameFinished();// TODO: make this method 
+
+        }
+
+        if(snake.SnakeBody[0].y == cellCount || snake.SnakeBody[0].y == -1) 
+        {
+            GameFinished();
+           
+        }
+    }
+
+    void collisioWithBody()
+    {
+        // create a copy of the snake body
+
+        deque<Vector2> headCollied = snake.SnakeBody;
+        
+        // pop the head from the copy and check that that heaad lies in the original
+        headCollied.pop_front();
+
+        if (ElementsInDeque(snake.SnakeBody[0], headCollied))
+        {
+            GameFinished();
+        }
+
+    }
+
+    // game over method
+    void GameFinished()
+    {
+        snake.Reset();
+         // need to change the position of the food 
+         //// we have to call this function instaed of generatRandomPosition because we dont want the 
+         // generated position for food be in top of the existing snake position
+
+        food.position = food.GenerateRandomPosition(snake.SnakeBody); //  takes the deque as the parameter
+        gameRunning = false; // if the game ends we update this bool variable
     }
 
 
 };
 
 int main () {
-    InitWindow(cellSize*cellCount, cellSize*cellCount, "Snake");
+    InitWindow(2 * offsetvalue + cellCount * cellSize, 2 * offsetvalue + cellSize*cellCount, "Snake");
     SetTargetFPS(60);
 
     // Doesnt need to create food and snake objects becasue the container does it.
@@ -212,20 +300,24 @@ int main () {
         {
             // move the snake upwards; we can do that by decreasing y coordinate
             game.snake.direction = {0,-1}; 
+            game.gameRunning = true; // if any arrow is pressed then the game restarts
         }
         // DOWN
         if (IsKeyPressed(KEY_DOWN) && game.snake.direction.y != -1) 
         {
             game.snake.direction = {0,1};
+            game.gameRunning = true; // if any arrow is pressed then the game restarts
         }
         //LEFT
         if (IsKeyPressed(KEY_LEFT) && game.snake.direction.x != 1)
         {
             game.snake.direction = {-1,0};
+            game.gameRunning = true; // if any arrow is pressed then the game restarts
         }
         if (IsKeyPressed(KEY_RIGHT) && game.snake.direction.x != -1)
         {
             game.snake.direction = {1,0};
+            game.gameRunning = true; // if any arrow is pressed then the game restarts
         }
 
 
@@ -233,6 +325,8 @@ int main () {
         // painting the screen green
         ClearBackground(green);
         
+        DrawRectangleLinesEx(Rectangle{(float)offsetvalue-5, (float)offsetvalue -5, (float)cellCount*cellSize + 10, (float)cellCount*cellSize+10}, 5, darkGreen); // draws outline of a rectangle. takes rect. thickness (pixels), color
+        DrawText("Snake", offsetvalue - 5, 20, 42, darkGreen);// default font takes 5 parameters: text, posX, posY, fontSize, color
         game.Draw();
         
 

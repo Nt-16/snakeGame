@@ -7,13 +7,6 @@ Main steps to follow to make this snake game;
 1. creating a blank canvas and game loop . ---> DONE
 
 
-
-
-
-
-
-
-
 2. Creating the food
 
 -- I created a grid - basically dividing the screen into identical cell, this is going to use for the positioning 
@@ -72,7 +65,7 @@ Food class:
 
 4. Moving the sanke 
 
-    The main idea is to add a cell infrnt of the snake bodu and remove a cell from the tail.
+    The main idea is to add a cell infront of the snake bodu and remove a cell from the tail.
     this will move the snake.
     
     to move right : remove the tail cell and add to the head cell
@@ -82,6 +75,7 @@ Food class:
     ## Removing the last cell and adding a new one to the direction of the movement ##
     this will be the logic to move the snake in the screen
 
+    
 
 After step 4,
     Game class will be the container that will hold the snake and food oject.
@@ -89,9 +83,28 @@ After step 4,
     - code will be easier to maintain, understand and expand
     - easy to find the bugs 
 
-5. Making the snake eat the food
-6. Making the snake grow longer as it eats the food
-7. Check for collision with the edge of the map and its tail
+5. Making the snake eat the food.
+    for this step, whenever the head of the snake which is the 0 index in the deque is equal to the position of the 
+    food, new coordinate should be generated so that the food will render in the different position.
+
+    there is the small probability that after eating the food the food might spawn in top of snake body
+    so,
+    while generating the random position for the food I wrote a new function the generates a new set 
+    of coordinate of position if the generated x and y already exiist in the snake body which i.e deque<vector2>snakeBody
+
+
+6. Making the snake grow longer as it eats the food.
+
+    for this step I just have add a new segment whenever the snake head collides with the food.
+
+     --> I made a boolean variable and initalized with false, if the snake collides
+    with food, set that boolean to true and I used that boolean in the if statement to not pop the last elenent 
+    in deque so that snake will add a segment whenever it eats the food. if it is false then it continues to 
+    pop last element and add to the head so the snake moves without growing. 
+
+
+7. Check for collision with the edge of the map and its tail.
+
 8. Adding the title and frame. To make it look pretty
 9. Kepping score 
 10. (MAybe ) Adding sounds
