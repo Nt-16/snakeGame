@@ -11,7 +11,7 @@ using namespace std;
 Color darkGreen = {0, 117, 44, 255 }; // colors values for dark green, values: 0 to 255
 Color green = {173, 204, 96, 255};
 
-
+int scoreCount = 0; 
 int cellSize = 30; 
 int cellCount = 25; //rows and column
 
@@ -195,6 +195,7 @@ class Game // will hold the snake and food class
             checkColliosionWithFood(); //  snake when it eats the food
             collisionWithEdges(); // snake when it goes out of the map
             collisioWithBody();
+            scoreTracker();
         }
     }
 
@@ -248,6 +249,14 @@ class Game // will hold the snake and food class
             GameFinished();
         }
 
+    }
+
+    void scoreTracker()
+    {
+        if (snake.growCell)
+        {
+            scoreCount ++;
+        }
     }
 
     // game over method
@@ -327,7 +336,11 @@ int main () {
         
         DrawRectangleLinesEx(Rectangle{(float)offsetvalue-5, (float)offsetvalue -5, (float)cellCount*cellSize + 10, (float)cellCount*cellSize+10}, 5, darkGreen); // draws outline of a rectangle. takes rect. thickness (pixels), color
         DrawText("Snake", offsetvalue - 5, 20, 42, darkGreen);// default font takes 5 parameters: text, posX, posY, fontSize, color
+        DrawText("Score: ", offsetvalue + 5, 730, 42, darkGreen);
+        
+
         game.Draw();
+
         
 
 
